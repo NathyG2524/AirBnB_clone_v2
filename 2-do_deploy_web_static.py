@@ -11,7 +11,7 @@ import os
 filename = "web_static_" + datetime.now().replace(microsecond=0)\
             .strftime("%Y%m%d%H%M%S") + ".tgz"
 
-env.hosts = ["ubuntu@34.138.32.10", "ubuntu@34.237.53.89"]
+env.hosts = ["ubuntu@44.200.177.244", "ubuntu@3.234.240.140"]
 
 
 def do_pack():

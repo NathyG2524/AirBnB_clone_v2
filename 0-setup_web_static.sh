@@ -14,4 +14,3 @@ chown -hR ubuntu:ubuntu /data
 redirect="\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}\n"
 sudo sed -i "50s|.*|$redirect|" /etc/nginx/sites-enabled/default
 sudo /etc/init.d/nginx restart
-

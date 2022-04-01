@@ -1,42 +1,39 @@
 #!/usr/bin/python3
 """
-Fabric script (based on the file 1-pack_web_static.py) that distributes
-an archive to your web servers, using the function do_deploy
+Fabric script that generates archive
 """
 
 from fabric.api import *
 from datetime import datetime
 import os
 
-filename = "web_static_" + datetime.now().replace(microsecond=0)\
-            .strftime("%Y%m%d%H%M%S") + ".tgz"
-
 env.hosts = ["ubuntu@44.200.177.244", "ubuntu@3.234.240.140"]
 
 
-def do_pack():
-    """Fabric function"""
-    print("Packing web_static to versions/{}".format(filename))
-    if not os.path.isdir("versions"):
-        os.mkdir("versions")
-    local("tar -cvzf versions/{} web_static".format(filename))
-    print("web_static packed: versions/{} -> {}Bytes".format(
-        filename, os.path.getsize("versions/{}".format(filename))))
-
-
 def do_deploy(archive_path):
-    """Fabric deploy function, takes a file path as argument"""
-    if not os.path.isfile(archive_path):
-        return False
-    # remove .tgz extension
-    filename = archive_path.replace("versions/", "")
-    # remove versions folder path
-    folder_name = filename.replace(".tgz", "")
-    put(archive_path, "/tmp", use_sudo=True)
-    run("mkdir -p /data/web_static/releases/{}".format(folder_name))
-    run("tar -xzf /tmp/{} --strip-components 1 -C \
-        /data/web_static/releases/{}".format(filename, folder_name))
-    run("rm /tmp/{}".format(filename))
-    run("rm -rf /data/web_static/current")
-    run("ln -s /data/web_static/releases/{} /data/web_static/current".
-        format(folder_name))
+    """
+        Distribute an archive to our web servers
+    """
+    if os.path.exists(archive_path):
+        archived_file = archive_path[9:]
+        print(archived_file)
+        newest_version = "/data/web_static/releases/" + archived_file[:-4]
+        archived_file = "/tmp/" + archived_file
+        put(archive_path, "/tmp/", use_sudo=True)
+        run("sudo mkdir -p {}".format(newest_version))
+        run("sudo tar -xzf {} -C {}/".format(archived_file,
+                                             newest_version))
+        run("sudo rm {}".format(archived_file))
+        run("sudo mv {}/web_static/* {}".format(newest_version,
+                                                newest_version))
+        run("sudo rm -rf {}/web_static".format(newest_version))
+        run("sudo rm -rf /data/web_static/current")
+        run("sudo ln -s {} /data/web_static/current".format(newest_version))
+
+        print("New version deployed!")
+        return True
+
+    return False
+
+
+

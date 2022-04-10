@@ -45,7 +45,6 @@ def number(n):
 @app.route("/number_template/<int:n>")
 def number_template(n):
     """ Displays HTML page when n is integer"""
-    n = request.args.get(n)
     return render_template("5-number.html", n=n)
 
 
